@@ -32,6 +32,7 @@ class ExceedsRetryTimes(Exception):
 bottom_1 = 'screenshot/bottom1.PNG'
 bottom_2 = 'screenshot/bottom2.PNG'
 bottom_3 = 'screenshot/bottom3.PNG'
+guaiwu = 'screenshot/guaiwu.PNG'
 enter = 'screenshot/enter.PNG'
 close_0 = 'screenshot/close0.PNG'
 close_1 = 'screenshot/close1.PNG'
@@ -198,7 +199,7 @@ def FubenBottom(img_path, drag_path):
     location = FindFuben(img_path, drag_path)
     left, top, width, height = location
     center = pyautogui.center((left, top, width, height))
-    pyautogui.click(center)
+    pyautogui.doubleClick(center)
     
 def Fuben(num, fuben_num, fuben_kind, drag_path):
     """
@@ -215,7 +216,17 @@ def Fuben(num, fuben_num, fuben_kind, drag_path):
             print(f"**********{fuben_path} Started**********")
             ClickBottom(bottom_1)
             ClickBottom(bottom_2)
-            ClickBottom(fuben_kind)
+
+            # 错误点击怪物大厦
+            try:
+                if FindBottom(guaiwu):
+                    #ClickBottom(close_1)
+                    ClickBottom(close_1)
+                    ClickBottom(bottom_3)
+                    break
+            except:
+                ClickBottom(fuben_kind)
+
             FubenBottom(fuben_path, drag_path)
             ClickEnter() #副本
             time.sleep(1)
@@ -277,4 +288,10 @@ diff.seconds
 # 运行
 
 time.sleep(diff.seconds)
-job()
+try:
+    if FindBottom(bottom_3):
+        ClickBottom(bottom_3)
+        time.sleep(0.5)
+        job()
+except:
+    job()
