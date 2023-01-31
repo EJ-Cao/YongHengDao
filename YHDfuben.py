@@ -6,8 +6,20 @@ import numpy as np
 import time
 import os
 import pyautogui
-import schedule
+import logging
 from datetime import datetime, timedelta
+import sys
+import re
+
+logging.basicConfig(
+    level = logging.INFO,
+    # filename = 'log.txt',
+    # filemode = 'w'
+    handlers=[
+        logging.FileHandler("debug.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 pyautogui.FAILSAFE = False
 
@@ -51,8 +63,10 @@ emfuben = 'screenshot/emfb.PNG'
 # 100级以前一共10个
 
 img_list = os.listdir('screenshot')
-allfuben = img_list[:10]
-
+allfuben = img_list[:9]
+logging.info(allfuben)
+putong = img_list[1:9]
+logging.info(putong)
 
 # 定义方程
 
@@ -65,7 +79,7 @@ def FindBottom(img_path):
     """
 
     time.sleep(0.5)
-    location = pyautogui.locateOnScreen(img_path, confidence=0.8)
+    location = pyautogui.locateOnScreen(img_path, confidence=0.78)
     if location is not None:
         return location
     else:
@@ -84,7 +98,8 @@ def ClickBottom(img_path):
         left, top, width, height = location
         center = pyautogui.center((left, top, width, height))
         pyautogui.click(center)
-    print(f"{img_path} trying")
+        
+    logging.info(f"{img_path} trying")
     while True:
         try:
             _ClickBottom(img_path)
@@ -95,7 +110,7 @@ def ClickBottom(img_path):
                 _ClickBottom(img_path)
                 return
             except NoBottomFoundException:      
-                print(f"{img_path} successful")
+                logging.info(f"{img_path} successful")
                 return
 
 def ClickEnter(img_path = enter):
@@ -109,14 +124,14 @@ def ClickEnter(img_path = enter):
         left, top, width, height = location
         center = pyautogui.center((left, top, width, height))
         pyautogui.click(center)
-    print(f"{img_path} trying")
+    logging.info(f"{img_path} trying")
     while True:
         try:
             _ClickEnter(img_path)
         except NoBottomFoundException:
             continue
         else:
-            print(f"{img_path} successful")
+            logging.info(f"{img_path} successful")
             return
 
 def Drag(img_path):
@@ -134,14 +149,14 @@ def Drag(img_path):
         pyautogui.dragRel(0, 200, duration=0.5)
         pyautogui.moveTo(x, y+90, duration=0.2)  
         pyautogui.dragRel(0, 200, duration=0.5)
-    print(f"{img_path} trying")
+    logging.info(f"{img_path} trying")
     while True:
         try:
             _Drag(img_path)
         except NoBottomFoundException:
             continue
         else:
-            print(f"{img_path} successful")
+            logging.info(f"{img_path} successful")
             return
 
 def DragDown(img_path):
@@ -154,14 +169,14 @@ def DragDown(img_path):
         pyautogui.dragRel(0, 300, duration=0.5)
         pyautogui.moveTo(x, y+90, duration=0.2)  
         pyautogui.dragRel(0, 300, duration=0.5)
-    print(f"{img_path} trying")
+    logging.info(f"{img_path} trying")
     while True:
         try:
             _DragDown(img_path)
         except NoBottomFoundException:
             continue
         else:
-            print(f"{img_path} successful")
+            logging.info(f"{img_path} successful")
             return
 
 def DragUp(img_path):
@@ -174,14 +189,14 @@ def DragUp(img_path):
         pyautogui.dragRel(0, -300, duration=0.5)
         pyautogui.moveTo(x, y+390, duration=0.2)  
         pyautogui.dragRel(0, -300, duration=0.5)
-    print(f"{img_path} trying")
+    logging.info(f"{img_path} trying")
     while True:
         try:
             _DragUp(img_path)
         except NoBottomFoundException:
             continue
         else:
-            print(f"{img_path} successful")
+            logging.info(f"{img_path} successful")
             return
             
 def FindFuben(img_path, drag_path):
@@ -213,7 +228,7 @@ def Fuben(num, fuben_num, fuben_kind, drag_path):
     for i in fuben_num:
         for j in range(1,num+1):
             fuben_path = f'screenshot/{i}'
-            print(f"**********{fuben_path} Started**********")
+            logging.info(f"**********{fuben_path} Started**********")
             ClickBottom(bottom_1)
             ClickBottom(bottom_2)
 
@@ -238,7 +253,7 @@ def Fuben(num, fuben_num, fuben_kind, drag_path):
                     ClickBottom(bottom_3)
                     break
             except:
-                print(f'进入{i}副本，第{j}次')
+                logging.info(f'进入{i}副本，第{j}次')
         
             # 打副本
             time.sleep(15)
@@ -252,9 +267,9 @@ def Fuben(num, fuben_num, fuben_kind, drag_path):
                     ClickBottom(finsihed)
             except:
                 ClickBottom(finsihed)
-            print('副本已关闭')
+            logging.info('副本已关闭')
             time.sleep(1)
-            print(f'**********{fuben_path} Finished**********')        
+            logging.info(f'**********{fuben_path} Finished**********')        
         else:
             continue
 
@@ -265,9 +280,9 @@ def job():
     噩梦副本一次
     
     """
+    #Fuben(3, allfuben, tzfuben, tzdrag)
+    #Fuben(1, allfuben, emfuben, emdrag)
     Fuben(3, allfuben, ptfuben, ptdrag)
-    Fuben(3, allfuben, tzfuben, tzdrag)
-    Fuben(1, allfuben, emfuben, emdrag)
 
 
 # 设定自动运行时间
@@ -277,17 +292,17 @@ now = datetime.now()
 if now.hour > 5:
     start_day = datetime.now().date()+ timedelta(days=1)
     start_time = datetime(start_day.year, \
-                        start_day.month, start_day.day, 5, 5)
+                        start_day.month, start_day.day, 5, 15)
 else:
-    start_time = datetime(now.year, now.month, now.day, 5, 5)
+    start_time = datetime(now.year, now.month, now.day, 5, 15)
 
 diff = start_time - now
-diff.seconds
+logging.info(diff.seconds)
 
 
 # 运行
 
-time.sleep(diff.seconds)
+#time.sleep(diff.seconds)
 try:
     if FindBottom(bottom_3):
         ClickBottom(bottom_3)
